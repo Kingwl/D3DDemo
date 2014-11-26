@@ -2,13 +2,17 @@
 #include "d3dx9.h"
 #include "initD3D.h"
 #include "Vertex.hpp"
+#include "Cube.h"
 
+Cube *cube;
 const int Width = 800;
 const int Height = 600;
 IDirect3DDevice9 *Device = nullptr;
 IDirect3DVertexBuffer9 *VertexBuffer = nullptr;
 bool Display(float timeDelta)
 {
+	static float angle = 0.0f;
+
 	D3DXVECTOR3 pos(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 look(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
@@ -23,8 +27,12 @@ bool Display(float timeDelta)
 	Device->SetTransform(D3DTS_WORLD, &C);
 	Device->SetStreamSource(0, VertexBuffer, 0, sizeof(ColorVertex));
 	Device->SetFVF(ColorVertex::FVF);
-	Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
+	Device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
+	D3DXMATRIX CU;
 
+	D3DXMatrixTranslation(&CU, 1.0f, 0.0f, 0.0f);
+	Device->SetTransform(D3DTS_WORLD, &CU);
+	cube->drawCube();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -32,8 +40,9 @@ bool Display(float timeDelta)
 
 bool Setup()
 {
+	cube = new Cube(Device);
 	Device->CreateVertexBuffer(
-		3 * sizeof (ColorVertex),
+		6 * sizeof (ColorVertex),
 		D3DUSAGE_WRITEONLY,
 		ColorVertex::FVF,
 		D3DPOOL_MANAGED,
@@ -44,6 +53,10 @@ bool Setup()
 	v[0] = ColorVertex(0.0f, 0.0f, 0.0f, D3DCOLOR_XRGB(255,0,0));
 	v[1] = ColorVertex(0.0f, 1.0f, 0.0f, D3DCOLOR_XRGB(0,255,0));
 	v[2] = ColorVertex(1.0f, 0.0f, 0.0f, D3DCOLOR_XRGB(0,0,255));
+
+	v[3] = ColorVertex(0.0f, 1.0f, 0.0f, D3DCOLOR_XRGB(255, 0, 0));
+	v[4] = ColorVertex(1.0f, 1.0f, 0.0f, D3DCOLOR_XRGB(0, 255, 0));
+	v[5] = ColorVertex(1.0f, 0.0f, 0.0f, D3DCOLOR_XRGB(0, 0, 255));
 	VertexBuffer->Unlock();
 
 
