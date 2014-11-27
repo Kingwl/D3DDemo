@@ -27,7 +27,7 @@ bool TextureManager::addTexture(IDirect3DDevice9 *Device,const char * fileName)
 	TextureClass *texture = new TextureClass(Device);
 	if (fileName != nullptr)
 	{
-		if (!texture->setTexture(fileName));
+		if (!texture->setTexture(fileName))
 		return false;
 	}
 	_elemts.push_back(texture);

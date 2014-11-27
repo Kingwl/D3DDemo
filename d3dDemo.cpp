@@ -3,12 +3,14 @@
 #include "initD3D.h"
 #include "Vertex.hpp"
 #include "Cube.h"
-
+#include "LightManager.h"
+#include "Mtrl.h"
 Cube *cube;
 const int Width = 800;
 const int Height = 600;
 IDirect3DDevice9 *Device = nullptr;
 IDirect3DVertexBuffer9 *VertexBuffer = nullptr;
+LightManager *lightManager;
 bool Display(float timeDelta)
 {
 	static float angle = 0.0f;
@@ -32,7 +34,8 @@ bool Display(float timeDelta)
 
 	D3DXMatrixTranslation(&CU, 1.0f, 0.0f, 0.0f);
 	Device->SetTransform(D3DTS_WORLD, &CU);
-	cube->drawCube();
+	D3DMATERIAL9 mtrl = d3d::RED_MTRL;
+	cube->drawCube(0,&mtrl,0);
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -40,6 +43,16 @@ bool Display(float timeDelta)
 
 bool Setup()
 {
+	D3DXVECTOR3 dir(0.717f,0.0f,0.717f);
+	D3DXCOLOR color = d3d::WHITE;
+	lightManager->getInstance().setLight(LightManager::LightType::Directional,nullptr,&dir,&color);
+
+	Device->SetRenderState(D3DRS_LIGHTING, true);
+	Device->SetLight(0, lightManager->getInstance().getLight());
+	Device->LightEnable(0, true);
+	Device->SetRenderState(D3DRS_NORMALIZENORMALS, true);
+	Device->SetRenderState(D3DRS_SPECULARENABLE, false);
+
 	cube = new Cube(Device);
 	Device->CreateVertexBuffer(
 		6 * sizeof (ColorVertex),
@@ -68,7 +81,6 @@ bool Setup()
 		1.0f,
 		1000.0);
 	Device->SetTransform(D3DTS_PROJECTION, &proj);
-	Device->SetRenderState(D3DRS_LIGHTING, false);
 	return true;
 }
 void Cleanup()

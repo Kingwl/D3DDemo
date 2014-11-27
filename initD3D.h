@@ -23,8 +23,6 @@ namespace d3d{
 			t = nullptr;
 		}
 	}
-
-
 }
 
 
