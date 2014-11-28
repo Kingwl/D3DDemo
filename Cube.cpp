@@ -5,14 +5,14 @@ Cube::Cube(IDirect3DDevice9 *Device)
 :_Device(Device), _VertexBuffer(nullptr), _IndexBuffer(nullptr)
 {
 	_Device->CreateVertexBuffer(
-		24 * sizeof(TexVertex),
+		NumVertex * sizeof(TexVertex),
 		D3DUSAGE_WRITEONLY,
 		TexVertex::FVF,
 		D3DPOOL_MANAGED,
 		&_VertexBuffer,0);
 
 	_Device->CreateIndexBuffer(
-		36 * sizeof(WORD),
+		NumIndex * sizeof(WORD),
 		D3DUSAGE_WRITEONLY,
 		D3DFMT_INDEX16,
 		D3DPOOL_MANAGED,
@@ -82,7 +82,7 @@ DCube::DCube(IDirect3DDevice9 *Device, D3DMATERIAL9 *Mtrl, IDirect3DTexture9 **T
 :_Device(Device), _Mtrl(Mtrl)
 {
 	_Device->CreateVertexBuffer(
-		24 * sizeof(TexVertex),
+		NumVertex * sizeof(TexVertex),
 		D3DUSAGE_WRITEONLY,
 		TexVertex::FVF,
 		D3DPOOL_MANAGED,
@@ -208,40 +208,71 @@ void DCube::drawCube(D3DXMATRIX *World)
 void createCubeVertex(TexVertex *v)
 {
 	//front
-	v[0] = TexVertex(-1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-	v[1] = TexVertex(1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-	v[2] = TexVertex(1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
-	v[3] = TexVertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[0] = TexVertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+	v[1] = TexVertex(-1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[2] = TexVertex(1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+	v[3] = TexVertex(1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
 
 	//back
-	v[4] = TexVertex(1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-	v[5] = TexVertex(-1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-	v[6] = TexVertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-	v[7] = TexVertex(1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[4] = TexVertex(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+	v[5] = TexVertex(1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	v[6] = TexVertex(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+	v[7] = TexVertex(-1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 
 	//left
-	v[8] = TexVertex(-1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	v[9] = TexVertex(-1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[10] = TexVertex(-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[11] = TexVertex(-1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[8] = TexVertex(-1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[9] = TexVertex(-1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[10] = TexVertex(-1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[11] = TexVertex(-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	//right
-	v[12] = TexVertex(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	v[13] = TexVertex(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[14] = TexVertex(-1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[15] = TexVertex(-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[12] = TexVertex(1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[13] = TexVertex(1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[14] = TexVertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[15] = TexVertex(1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	//top
 
-	v[16] = TexVertex(-1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
-	v[17] = TexVertex(1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-	v[18] = TexVertex(1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
-	v[19] = TexVertex(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[16] = TexVertex(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+	v[17] = TexVertex(-1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[18] = TexVertex(1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
+	v[19] = TexVertex(1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
 
 	//bottom
 
-	v[20] = TexVertex(1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f);
-	v[21] = TexVertex(-1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
-	v[22] = TexVertex(-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f);
-	v[23] = TexVertex(1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f);
+	v[20] = TexVertex(-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f);
+	v[21] = TexVertex(1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f);
+	v[22] = TexVertex(1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f);
+	v[23] = TexVertex(-1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
+}
+void Cube::getMesh(ID3DXMesh **Mesh)
+{
+	if (_Mesh == nullptr) D3DXCreateMeshFVF(12, 24, D3DXMESH_MANAGED,TexVertex::FVF,_Device,&_Mesh);
+	TexVertex *v = nullptr;
+	TexVertex *p = nullptr;
+	_Mesh->LockVertexBuffer(0,(void**)&v);
+	createCubeVertex(v);
+	_Mesh->UnlockVertexBuffer();
+
+	WORD *ii = nullptr;
+	WORD *ip = nullptr;
+
+	_Mesh->LockIndexBuffer(0, (void**)&ii);
+	_IndexBuffer->Lock(0, 0, (void**)&ip, 0);
+	for (int i = 0; i < 36; i++)
+	{
+		ii[i] = ip[i];
+	}
+	_Mesh->UnlockIndexBuffer();
+	_IndexBuffer->Unlock();
+
+	DWORD *adj = nullptr;
+	_Mesh->LockAttributeBuffer(0, &adj);
+	for (int i = 0; i < 12; i++)
+	{
+		adj[i] = 0;
+	}
+	_Mesh->UnlockAttributeBuffer();
+
+	*Mesh = _Mesh;
 }
