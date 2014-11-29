@@ -47,9 +47,7 @@ Cube::Cube(IDirect3DDevice9 *Device)
 	i[30] = 20; i[31] = 21; i[32] = 23;
 	i[33] = 21; i[34] = 22; i[35] = 23;
 	_IndexBuffer->Unlock();
-
 }
-
 
 Cube::~Cube()
 {

@@ -22,7 +22,7 @@ TextureManager& TextureManager::getInstance()
 	}
 	return *_instance;
 }
-bool TextureManager::addTexture(IDirect3DDevice9 *Device,const char * fileName)
+bool TextureManager::addTexture(IDirect3DDevice9 *Device, const char * fileName, UINT *identity)
 {
 	TextureClass *texture = new TextureClass(Device);
 	if (fileName != nullptr)
@@ -31,6 +31,7 @@ bool TextureManager::addTexture(IDirect3DDevice9 *Device,const char * fileName)
 		return false;
 	}
 	_elemts.push_back(texture);
+	*identity = _elemts.end() - _elemts.begin() -1;
 	return true;
 }
 TextureClass* TextureManager::getTexture(std::size_t index)
@@ -38,6 +39,7 @@ TextureClass* TextureManager::getTexture(std::size_t index)
 	if (index >= _elemts.size())
 	{
 		return nullptr;
+		::MessageBox(0, "zero", "", 0);
 	}
 	return _elemts[index];
 }

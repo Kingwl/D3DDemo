@@ -16,6 +16,11 @@ bool TextureClass::setTexture(const char* fileName)
 {
 	if (_Texture != nullptr)
 		textureClear();
+	if (fileName == nullptr)
+	{
+		_Texture = nullptr;
+		return false;
+	}
 	D3DXCreateTextureFromFile(_Device, fileName, &_Texture);
 	return true;
 }
@@ -27,7 +32,8 @@ void TextureClass::textureClear()
 		_Texture = nullptr;
 	}
 }
-const IDirect3DTexture9* TextureClass::getTexture()
+IDirect3DTexture9* TextureClass::getTexture()
 {
+
 	return _Texture;
 }

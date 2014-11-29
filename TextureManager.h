@@ -8,7 +8,7 @@ class TextureManager
 {
 public:
 	static TextureManager& getInstance();
-	bool addTexture(IDirect3DDevice9 *Device, const char * fileName = nullptr);
+	bool addTexture(IDirect3DDevice9 *Device, const char * fileName , UINT *identity);
 	TextureClass* getTexture(std::size_t index);
 private:
 	static TextureManager *_instance ;

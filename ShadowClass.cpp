@@ -38,7 +38,7 @@ bool ShadowClass::drawShadowMesh()
 	_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 	_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	_Device->SetRenderState(D3DRS_ZENABLE, false);
+	_Device->SetRenderState(D3DRS_ZENABLE, true);
 
 	_Device->SetMaterial(&mtrl);
 	_Device->SetTexture(0, 0);

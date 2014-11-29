@@ -10,7 +10,7 @@ public:
 	bool setTexture(const char* fileName);
 	~TextureClass();
 	void textureClear();
-	const IDirect3DTexture9* getTexture();
+	IDirect3DTexture9* getTexture();
 private:
 	IDirect3DTexture9 *_Texture;
 	IDirect3DDevice9 *_Device;

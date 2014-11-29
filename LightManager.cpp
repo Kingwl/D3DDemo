@@ -2,20 +2,21 @@
 LightManager* LightManager::_instance = nullptr;
 
 LightManager::LightManager()
-:_light(nullptr), _type(LightType::unknow)
+:_light(nullptr), _type(LightType::unknow), _lightEnable(true)
 {
 }
 LightManager::~LightManager()
 {
+
 }
 
-LightManager& LightManager::getInstance()
+LightManager* LightManager::getInstance()
 {
 	if (_instance == nullptr)
 	{
 		_instance = new LightManager();
 	}
-	return *_instance;
+	return _instance;
 }
 void LightManager::getPos(D3DXVECTOR3 *pos)
 {
@@ -72,10 +73,10 @@ void LightManager::setColor(D3DXCOLOR *color)
 	}
 }
 
-bool LightManager::setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color)
+bool LightManager::setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color,IDirect3DDevice9 *device = nullptr)
 {
 	if (color == nullptr) return false;
-
+	if (device != nullptr) _Device = device;
 	if (type == unknow)
 	{
 		return false;
@@ -98,6 +99,7 @@ bool LightManager::setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, 
 		}
 	}
 	_type = type;
+	setLightState(true);
 	return true;
 }
 const D3DLIGHT9* LightManager::getLight()
@@ -105,4 +107,19 @@ const D3DLIGHT9* LightManager::getLight()
 	if (_type == unknow) return nullptr;
 
 	return _light;
+}
+void LightManager::setLightState(bool s)
+{
+	_Device->LightEnable(0, s);
+	_lightEnable = s;
+}
+
+void LightManager::setDevice(IDirect3DDevice9 *Device)
+{
+	_Device = Device;
+}
+
+bool LightManager::getLightState()
+{
+	return _lightEnable;
 }

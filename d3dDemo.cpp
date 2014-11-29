@@ -6,15 +6,20 @@
 #include "LightManager.h"
 #include "Mtrl.h"
 #include "ShadowClass.h"
-Cube *cube,*cb;
+#include "TextureManager.h"
+#include "vector"
+Cube *cube;
 const int Width = 800;
 const int Height = 600;
 IDirect3DDevice9 *Device = nullptr;
 LightManager *lightManager;
+TextureManager *textureManager;
 ShadowClass *shadow;
-D3DXVECTOR3 cubePos(5.0f, 0.0f, 0.0f);
-D3DXVECTOR3 Cpos(5.0f, -2.0f, 0.0f);
-D3DXMATRIX World;
+D3DXVECTOR3 cubePos(0.0f, 3.0f, 5.0f);
+ID3DXMesh *tiger;
+std::vector<D3DMATERIAL9>Mtrls;
+std::vector<UINT>Textures;
+
 bool Display(float timeDelta)
 {
 	static float radius = 10.0f;
@@ -35,8 +40,7 @@ bool Display(float timeDelta)
 	if (::GetAsyncKeyState('S') & 0x8000f)
 		angle += 0.5f * timeDelta;
 
-
-	D3DXVECTOR3 position(cosf(angle) * radius, 1.0f, sinf(angle) * radius);
+	D3DXVECTOR3 position(cosf(angle) * radius, 5.0f, sinf(angle) * radius);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMATRIX V;
@@ -45,25 +49,20 @@ bool Display(float timeDelta)
 
 	Device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xffffffff, 1.0f, 0);
 	Device->BeginScene();
-	D3DXMatrixIdentity(&World);
-	Device->SetTransform(D3DTS_WORLD, &World);
-	D3DXMATRIX CU;
 
+	D3DXMATRIX CU;
 	D3DXMatrixTranslation(&CU, cubePos.x, cubePos.y, cubePos.z);
 	Device->SetTransform(D3DTS_WORLD, &CU);
 	D3DMATERIAL9 mtrl = d3d::RED_MTRL;
-	cube->drawCube(0,&mtrl,0);
-	
-	D3DXMATRIX sd;
-	D3DXMatrixTranslation(&sd, Cpos.x, Cpos.y, Cpos.z);
-	Device->SetTransform(D3DTS_WORLD, &sd);
-	D3DMATERIAL9 cmtrl = d3d::BLUE_MTRL;
-	cb->drawCube(0, &cmtrl, 0);
-	
-	D3DXMATRIX od;
-	Device->SetTransform(D3DTS_WORLD, &CU);
+	for (int i = 0; i < Mtrls.size(); i++)
+	{
+		Device->SetMaterial(&Mtrls[i]);
+
+		Device->SetTexture(0, textureManager->getInstance().getTexture(Textures[i])->getTexture());
+
+		tiger->DrawSubset(i);
+	}
 	shadow->drawShadowMesh();
-	
 
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
@@ -74,31 +73,59 @@ bool Setup()
 {
 	D3DXVECTOR3 dir(0.717f, -0.707f, 0.717f);
 	D3DXCOLOR color = d3d::WHITE;
-	lightManager->getInstance().setLight(LightManager::LightType::Directional,nullptr,&dir,&color);
-
+	ID3DXBuffer *adjBuffer = 0;
+	ID3DXBuffer *MtrlBuffer = 0;
+	DWORD NumTiger;
+	HRESULT hr = D3DXLoadMeshFromX(
+		"tiger.x",
+		D3DXMESH_MANAGED,
+		Device,
+		&adjBuffer,
+		&MtrlBuffer,
+		0,
+		&NumTiger,
+		&tiger
+		);
+	if (FAILED(hr))
+	{
+		::MessageBox(0, "load failed", "", 0);
+		exit(0);
+	}
+	
+	D3DXMATERIAL *mtrls = (D3DXMATERIAL*)MtrlBuffer->GetBufferPointer();
+	for (int i = 0; i < NumTiger; i++)
+	{
+		mtrls[i].MatD3D.Ambient = mtrls[i].MatD3D.Diffuse;
+		Mtrls.push_back(mtrls[i].MatD3D);
+		if (mtrls[i].pTextureFilename != nullptr)
+		{
+			UINT index;
+			textureManager->getInstance().addTexture(Device,mtrls[i].pTextureFilename, &index);
+			Textures.push_back(index);
+		}
+		else{
+			Textures.push_back(0);
+		}
+	}
+	d3d::Release<ID3DXBuffer*>(MtrlBuffer);
 
 	Device->SetRenderState(D3DRS_LIGHTING, true);
-	Device->SetLight(0, lightManager->getInstance().getLight());
+
+	lightManager->getInstance()->setLight(LightManager::LightType::Directional, nullptr, &dir, &color,Device);
+
+	Device->SetLight(0, lightManager->getInstance()->getLight());
 	Device->LightEnable(0, true);
 
 	Device->SetRenderState(D3DRS_NORMALIZENORMALS, true);
 	Device->SetRenderState(D3DRS_SPECULARENABLE, false);
-	cube = new Cube(Device);
-	cb = new Cube(Device);
 
 	shadow = new ShadowClass(Device);
 	D3DXVECTOR3 d;
-	lightManager->getInstance().getDir(&d);
+	lightManager->getInstance()->getDir(&d);
 
 	D3DXVECTOR4 light(d.x, d.y, d.z, 0.0f);
 	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
-	ID3DXMesh *m;
-	cube->getMesh(&m);
-	shadow->initContext(&light, &p, &cubePos, m);
-
-
-
-
+	shadow->initContext(&light, &p, &cubePos, tiger);
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
@@ -112,6 +139,7 @@ bool Setup()
 }
 void Cleanup()
 {
+	tiger->Release();
 }
 LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -124,6 +152,11 @@ LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		if (wParam == VK_ESCAPE)
 		{
 			::DestroyWindow(hWnd);
+		}
+		else if (wParam == VK_SPACE)
+		{
+			bool s = lightManager->getInstance()->getLightState();
+			lightManager->getInstance()->setLightState(!s);
 		}
 		break;
 	default:
