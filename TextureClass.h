@@ -6,8 +6,8 @@
 class TextureClass
 {
 public:
-	TextureClass(IDirect3DDevice9 *Device, const char* fileName = nullptr);
-	bool setTexture(const char* fileName);
+	TextureClass(IDirect3DDevice9 *Device, const char *fileName = nullptr);
+	bool setTexture(const char *fileName);
 	~TextureClass();
 	void textureClear();
 	IDirect3DTexture9* getTexture();

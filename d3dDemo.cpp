@@ -8,12 +8,14 @@
 #include "ShadowClass.h"
 #include "TextureManager.h"
 #include "vector"
+#include "ShadowManager.h"
 Cube *cube;
 const int Width = 800;
 const int Height = 600;
 IDirect3DDevice9 *Device = nullptr;
 LightManager *lightManager;
 TextureManager *textureManager;
+ShadowManager *shadowManager;
 ShadowClass *shadow;
 D3DXVECTOR3 cubePos(0.0f, 3.0f, 5.0f);
 ID3DXMesh *tiger;
@@ -58,12 +60,12 @@ bool Display(float timeDelta)
 	{
 		Device->SetMaterial(&Mtrls[i]);
 
-		Device->SetTexture(0, textureManager->getInstance().getTexture(Textures[i])->getTexture());
+		Device->SetTexture(0, textureManager->getInstance()->getTexture(Textures[i])->getTexture());
 
 		tiger->DrawSubset(i);
 	}
-	shadow->drawShadowMesh();
-
+	
+	shadowManager->getInstance()->Render();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -100,7 +102,7 @@ bool Setup()
 		if (mtrls[i].pTextureFilename != nullptr)
 		{
 			UINT index;
-			textureManager->getInstance().addTexture(Device,mtrls[i].pTextureFilename, &index);
+			textureManager->getInstance()->addTexture(Device,mtrls[i].pTextureFilename, &index);
 			Textures.push_back(index);
 		}
 		else{
@@ -119,13 +121,12 @@ bool Setup()
 	Device->SetRenderState(D3DRS_NORMALIZENORMALS, true);
 	Device->SetRenderState(D3DRS_SPECULARENABLE, false);
 
-	shadow = new ShadowClass(Device);
 	D3DXVECTOR3 d;
 	lightManager->getInstance()->getDir(&d);
 
 	D3DXVECTOR4 light(d.x, d.y, d.z, 0.0f);
 	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
-	shadow->initContext(&light, &p, &cubePos, tiger);
+	shadowManager->getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, tiger));
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
@@ -139,6 +140,8 @@ bool Setup()
 }
 void Cleanup()
 {
+	textureManager->clear();
+	shadowManager->clear();
 	tiger->Release();
 }
 LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

@@ -1,6 +1,6 @@
 #include "TextureClass.h"
 
-TextureClass::TextureClass(IDirect3DDevice9 *Device, const char* fileName)
+TextureClass::TextureClass(IDirect3DDevice9 *Device, const char *fileName)
 :_Texture(nullptr), _Device(Device)
 {
 	if (fileName != nullptr)
@@ -12,7 +12,7 @@ TextureClass::~TextureClass()
 {
 	textureClear();
 }
-bool TextureClass::setTexture(const char* fileName)
+bool TextureClass::setTexture(const char *fileName)
 {
 	if (_Texture != nullptr)
 		textureClear();
@@ -34,6 +34,5 @@ void TextureClass::textureClear()
 }
 IDirect3DTexture9* TextureClass::getTexture()
 {
-
 	return _Texture;
 }

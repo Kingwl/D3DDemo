@@ -6,23 +6,17 @@ TextureManager::TextureManager()
 }
 TextureManager::~TextureManager()
 {
-	for (auto &p : _elemts)
-	{
-		p->textureClear();
-		delete p;
-		p = nullptr;
-	}
-	_elemts.clear();
+	clear();
 }
-TextureManager& TextureManager::getInstance()
+TextureManager* TextureManager::getInstance()
 {
 	if (_instance == nullptr)
 	{
 		_instance = new TextureManager();
 	}
-	return *_instance;
+	return _instance;
 }
-bool TextureManager::addTexture(IDirect3DDevice9 *Device, const char * fileName, UINT *identity)
+bool TextureManager::addTexture(IDirect3DDevice9 *Device, const char *fileName, UINT *identity)
 {
 	TextureClass *texture = new TextureClass(Device);
 	if (fileName != nullptr)
@@ -42,4 +36,13 @@ TextureClass* TextureManager::getTexture(std::size_t index)
 		::MessageBox(0, "zero", "", 0);
 	}
 	return _elemts[index];
+}
+void TextureManager::clear()
+{
+	for (auto &p : _elemts)
+	{
+		delete p;
+		p = nullptr;
+	}
+	_elemts.clear();
 }

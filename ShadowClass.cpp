@@ -1,10 +1,7 @@
 #include "ShadowClass.h"
 #include "iostream"
 ShadowClass::ShadowClass(IDirect3DDevice9 *Device)
-:_Device(Device), _isInit(false), _Mesh(nullptr)
-{
-
-}
+:_Device(Device), _isInit(false), _Mesh(nullptr){}
 
 ShadowClass::~ShadowClass()
 {
@@ -14,14 +11,13 @@ ShadowClass::~ShadowClass()
 		_Mesh = nullptr;
 	}
 }
-bool ShadowClass::initContext(D3DXVECTOR4 *lightDirection, D3DXPLANE *Plane, D3DXVECTOR3 *Position, ID3DXMesh *Mesh)
+bool ShadowClass::initContext(ShadowInfo info)
 {
-
 	setContext();
-	_LightDir =  *lightDirection;
-	_ObjPosition = *Position;
-	_shadowPlane = *Plane;
-	_Mesh = Mesh;
+	_LightDir =  *info.LightDirection;
+	_ObjPosition = *info.Position;
+	_shadowPlane = *info.Plane;
+	_Mesh = info.Mesh;
 	_isInit = true;
 	return true;
 }

@@ -5,13 +5,22 @@
 #include "LightManager.h"
 #include "Mtrl.h"
 #include "Vertex.hpp"
+struct ShadowInfo{
+	ShadowInfo(){};
+	ShadowInfo(D3DXVECTOR4 *dir, D3DXPLANE *plane, D3DXVECTOR3 *pos, ID3DXMesh *mesh)
+	:LightDirection(dir), Plane(plane), Position(pos), Mesh(mesh){}
+	D3DXVECTOR4 *LightDirection;
+	D3DXPLANE *Plane;
+	D3DXVECTOR3 *Position;
+	ID3DXMesh *Mesh;
+};
 class ShadowClass
 {
 public:
 
 	ShadowClass(IDirect3DDevice9 *Device);
 	~ShadowClass();
-	bool initContext(D3DXVECTOR4 *lightDirection, D3DXPLANE *Plane, D3DXVECTOR3 *Position, ID3DXMesh *Mesh);
+	bool initContext(ShadowInfo info);
 	bool drawShadowMesh();
 	bool initShadow();
 	void setContext();
