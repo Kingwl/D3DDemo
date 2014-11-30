@@ -1,8 +1,9 @@
 #include "MeshClass.h"
 
 MeshClass::MeshClass(IDirect3DDevice9 *Device)
-:_Device(Device), _mesh(nullptr), _isInit(false), _hasMtrl(false), _hasTex(false), _mtrls(nullptr), _textures(nullptr)
+:_Device(Device), _mesh(nullptr), _isInit(false), _hasMtrl(false), _hasTex(false), _mtrls(nullptr)
 {
+	D3DXMatrixIdentity(&_Pos);
 }
 MeshClass::~MeshClass()
 {
@@ -38,13 +39,18 @@ bool MeshClass::initWithXFile(const char *filename)
 	DWORD Number;
 	HRESULT hr = D3DXLoadMeshFromX(
 		filename,
-		D3DXMESH_MANAGED | D3DXMESH_WRITEONLY,
+		D3DXMESH_MANAGED,
 		_Device,
 		&adjBuffer,
 		&MtrlBuffer,
 		nullptr,
-		&Number,&_mesh);
-	if (FAILED(hr))	return false;
+		&Number,
+		&_mesh);
+	if (FAILED(hr))
+	{
+		::MessageBox(0,filename, 0, 0);
+		return false;
+	}
 	D3DXMATERIAL *mtrls = (D3DXMATERIAL*)MtrlBuffer->GetBufferPointer();
 	for (int i = 0; i < Number; i++)
 	{
@@ -70,6 +76,7 @@ bool MeshClass::initWithXFile(const char *filename)
 bool MeshClass::Render()
 {
 	if (_isInit == false) return false;
+	_Device->SetTransform(D3DTS_WORLD, &_Pos);
 	for (int i = 0; i < _mtrls->size(); i++)
 	{
 		if (_hasMtrl)
@@ -84,4 +91,12 @@ bool MeshClass::Render()
 		_mesh->DrawSubset(i);
 	}
 	return true;
+}
+ID3DXMesh* MeshClass::getMeshPointer()
+{
+	return _mesh;
+}
+void MeshClass::setPos(D3DXMATRIX *pos)
+{
+	_Pos = *pos;
 }

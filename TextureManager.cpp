@@ -33,7 +33,6 @@ TextureClass* TextureManager::getTexture(std::size_t index)
 	if (index >= _elemts.size())
 	{
 		return nullptr;
-		::MessageBox(0, "zero", "", 0);
 	}
 	return _elemts[index];
 }

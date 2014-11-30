@@ -73,7 +73,7 @@ void LightManager::setColor(D3DXCOLOR *color)
 	}
 }
 
-bool LightManager::setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color,IDirect3DDevice9 *device = nullptr)
+bool LightManager::setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color,IDirect3DDevice9 *device)
 {
 	if (color == nullptr) return false;
 	if (device != nullptr) _Device = device;

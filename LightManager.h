@@ -23,7 +23,7 @@ public:
 	void setLightState(bool s);
 	bool getLightState();
 	void setDevice(IDirect3DDevice9 *Device);
-	bool setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color, IDirect3DDevice9 *device);
+	bool setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color, IDirect3DDevice9 *device = nullptr);
 	const D3DLIGHT9* getLight();
 private:
 	LightManager();

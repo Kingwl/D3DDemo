@@ -9,17 +9,18 @@
 #include "TextureManager.h"
 #include "vector"
 #include "ShadowManager.h"
+#include "MeshManager.h"
 
-Cube *cube;
+void fuck()
+{
+	::MessageBox(0, "fuck", 0, 0);
+}
 const int Width = 800;
 const int Height = 600;
+
 IDirect3DDevice9 *Device = nullptr;
-ShadowClass *shadow;
 D3DXVECTOR3 cubePos(0.0f, 3.0f, 5.0f);
 
-ID3DXMesh *tiger;
-std::vector<D3DMATERIAL9>Mtrls;
-std::vector<UINT>Textures;
 
 
 bool Display(float timeDelta)
@@ -52,19 +53,7 @@ bool Display(float timeDelta)
 	Device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xffffffff, 1.0f, 0);
 	Device->BeginScene();
 
-	D3DXMATRIX CU;
-	D3DXMatrixTranslation(&CU, cubePos.x, cubePos.y, cubePos.z);
-	Device->SetTransform(D3DTS_WORLD, &CU);
-	D3DMATERIAL9 mtrl = d3d::RED_MTRL;
-	for (int i = 0; i < Mtrls.size(); i++)
-	{
-		Device->SetMaterial(&Mtrls[i]);
-
-		Device->SetTexture(0, TextureManager::getInstance()->getTexture(Textures[i])->getTexture());
-
-		tiger->DrawSubset(i);
-	}
-	
+	MeshManager::getInstance()->Render();
 	ShadowManager::getInstance()->Render();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
@@ -75,55 +64,21 @@ bool Setup()
 {
 	D3DXVECTOR3 dir(0.717f, -0.707f, 0.717f);
 	D3DXCOLOR color = d3d::WHITE;
-	ID3DXBuffer *adjBuffer = 0;
-	ID3DXBuffer *MtrlBuffer = 0;
-	DWORD NumTiger;
-	HRESULT hr = D3DXLoadMeshFromX(
-		"tiger.x",
-		D3DXMESH_MANAGED,
-		Device,
-		&adjBuffer,
-		&MtrlBuffer,
-		0,
-		&NumTiger,
-		&tiger
-		);
-	if (FAILED(hr))
-	{
-		::MessageBox(0, "load failed", "", 0);
-		exit(0);
-	}
-	
-	D3DXMATERIAL *mtrls = (D3DXMATERIAL*)MtrlBuffer->GetBufferPointer();
-	for (int i = 0; i < NumTiger; i++)
-	{
-		mtrls[i].MatD3D.Ambient = mtrls[i].MatD3D.Diffuse;
-		Mtrls.push_back(mtrls[i].MatD3D);
-		if (mtrls[i].pTextureFilename != nullptr)
-		{
-			UINT index;
-			TextureManager::getInstance()->addTexture(Device,mtrls[i].pTextureFilename, &index);
-			Textures.push_back(index);
-		}
-		else{
-			Textures.push_back(0);
-		}
-	}
-	d3d::Release<ID3DXBuffer*>(MtrlBuffer);
-
-
 	LightManager::getInstance()->setLight(LightManager::LightType::Directional, nullptr, &dir, &color,Device);
 	LightManager::getInstance()->setLightState(true);
 	Device->SetLight(0, LightManager::getInstance()->getLight());
 	Device->SetRenderState(D3DRS_NORMALIZENORMALS, true);
 	Device->SetRenderState(D3DRS_SPECULARENABLE, false);
 	Device->SetRenderState(D3DRS_LIGHTING, true);
-
+	
 	D3DXVECTOR3 d;
 	LightManager::getInstance()->getDir(&d);
 	D3DXVECTOR4 light(d.x, d.y, d.z, 0.0f);
 	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
-	ShadowManager::getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, tiger));
+	D3DXMATRIX cp;
+	D3DXMatrixTranslation(&cp, cubePos.x, cubePos.y, cubePos.z);
+	UINT P = MeshManager::getInstance()->addMesh(Device, "tiger.x",&cp);
+	ShadowManager::getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
@@ -137,7 +92,7 @@ bool Setup()
 }
 void Cleanup()
 {
-	tiger->Release();
+	MeshManager::getInstance()->clear();
 }
 LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
