@@ -13,7 +13,7 @@ public:
 		Point = 2,
 		Spot = 3,
 	};
-	LightManager* getInstance();
+	static LightManager* getInstance();
 	void getPos(D3DXVECTOR3 *pos);
 	void setPos(D3DXVECTOR3 *pos);
 	void getDir(D3DXVECTOR3 *direction);

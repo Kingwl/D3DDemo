@@ -9,18 +9,18 @@
 #include "TextureManager.h"
 #include "vector"
 #include "ShadowManager.h"
+
 Cube *cube;
 const int Width = 800;
 const int Height = 600;
 IDirect3DDevice9 *Device = nullptr;
-LightManager *lightManager;
-TextureManager *textureManager;
-ShadowManager *shadowManager;
 ShadowClass *shadow;
 D3DXVECTOR3 cubePos(0.0f, 3.0f, 5.0f);
+
 ID3DXMesh *tiger;
 std::vector<D3DMATERIAL9>Mtrls;
 std::vector<UINT>Textures;
+
 
 bool Display(float timeDelta)
 {
@@ -60,12 +60,12 @@ bool Display(float timeDelta)
 	{
 		Device->SetMaterial(&Mtrls[i]);
 
-		Device->SetTexture(0, textureManager->getInstance()->getTexture(Textures[i])->getTexture());
+		Device->SetTexture(0, TextureManager::getInstance()->getTexture(Textures[i])->getTexture());
 
 		tiger->DrawSubset(i);
 	}
 	
-	shadowManager->getInstance()->Render();
+	ShadowManager::getInstance()->Render();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -102,7 +102,7 @@ bool Setup()
 		if (mtrls[i].pTextureFilename != nullptr)
 		{
 			UINT index;
-			textureManager->getInstance()->addTexture(Device,mtrls[i].pTextureFilename, &index);
+			TextureManager::getInstance()->addTexture(Device,mtrls[i].pTextureFilename, &index);
 			Textures.push_back(index);
 		}
 		else{
@@ -111,22 +111,19 @@ bool Setup()
 	}
 	d3d::Release<ID3DXBuffer*>(MtrlBuffer);
 
-	Device->SetRenderState(D3DRS_LIGHTING, true);
 
-	lightManager->getInstance()->setLight(LightManager::LightType::Directional, nullptr, &dir, &color,Device);
-
-	Device->SetLight(0, lightManager->getInstance()->getLight());
-	Device->LightEnable(0, true);
-
+	LightManager::getInstance()->setLight(LightManager::LightType::Directional, nullptr, &dir, &color,Device);
+	LightManager::getInstance()->setLightState(true);
+	Device->SetLight(0, LightManager::getInstance()->getLight());
 	Device->SetRenderState(D3DRS_NORMALIZENORMALS, true);
 	Device->SetRenderState(D3DRS_SPECULARENABLE, false);
+	Device->SetRenderState(D3DRS_LIGHTING, true);
 
 	D3DXVECTOR3 d;
-	lightManager->getInstance()->getDir(&d);
-
+	LightManager::getInstance()->getDir(&d);
 	D3DXVECTOR4 light(d.x, d.y, d.z, 0.0f);
 	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
-	shadowManager->getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, tiger));
+	ShadowManager::getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, tiger));
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
@@ -140,8 +137,6 @@ bool Setup()
 }
 void Cleanup()
 {
-	textureManager->clear();
-	shadowManager->clear();
 	tiger->Release();
 }
 LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -158,8 +153,8 @@ LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 		else if (wParam == VK_SPACE)
 		{
-			bool s = lightManager->getInstance()->getLightState();
-			lightManager->getInstance()->setLightState(!s);
+			bool s = LightManager::getInstance()->getLightState();
+			LightManager::getInstance()->setLightState(!s);
 		}
 		break;
 	default:
