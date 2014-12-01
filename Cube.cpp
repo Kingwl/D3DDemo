@@ -1,9 +1,10 @@
 #include "Cube.h"
 
 
-Cube::Cube(IDirect3DDevice9 *Device)
-:_Device(Device), _VertexBuffer(nullptr), _IndexBuffer(nullptr)
+Cube::Cube()
+:_Device(nullptr), _VertexBuffer(nullptr), _IndexBuffer(nullptr)
 {
+	_Device = DeviceManager::getInstance()->getDevice();
 	_Device->CreateVertexBuffer(
 		NumVertex * sizeof(TexVertex),
 		D3DUSAGE_WRITEONLY,
@@ -76,9 +77,10 @@ void Cube::drawCube(D3DXMATRIX *World, D3DMATERIAL9 *Mtrl, IDirect3DTexture9 *Te
 	_Device->SetIndices(_IndexBuffer);
 	_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 24, 0, 12);
 }
-DCube::DCube(IDirect3DDevice9 *Device, D3DMATERIAL9 *Mtrl, IDirect3DTexture9 **Texture)
-:_Device(Device), _Mtrl(Mtrl)
+DCube::DCube(D3DMATERIAL9 *Mtrl, IDirect3DTexture9 **Texture)
+:_Device(nullptr), _Mtrl(Mtrl)
 {
+	_Device = DeviceManager::getInstance()->getDevice();
 	_Device->CreateVertexBuffer(
 		NumVertex * sizeof(TexVertex),
 		D3DUSAGE_WRITEONLY,

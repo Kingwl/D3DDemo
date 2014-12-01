@@ -5,11 +5,12 @@
 #include "windows.h"
 #include "assert.h"
 #include "Vertex.hpp"
+#include "DeviceManager.h"
 class Cube
 {
 public:
 
-	Cube(IDirect3DDevice9 *Device);
+	Cube();
 
 	~Cube();
 	void drawCube(D3DXMATRIX *World = nullptr, D3DMATERIAL9 *Mtrl = nullptr, IDirect3DTexture9 *Texture = nullptr);
@@ -36,7 +37,7 @@ public:
 		top = 4,
 		bottom = 5
 	};
-	DCube(IDirect3DDevice9 *Device, D3DMATERIAL9 *Mtrl = nullptr, IDirect3DTexture9 **Texture = nullptr);
+	DCube(D3DMATERIAL9 *Mtrl = nullptr, IDirect3DTexture9 **Texture = nullptr);
 	void setTexture(IDirect3DTexture9 **Texture);
 	void setTexture(faceTo to, IDirect3DTexture9 *Texture);
 	void setMtrl(D3DMATERIAL9 *Mtrl);

@@ -1,7 +1,8 @@
 #include "ShadowClass.h"
-#include "iostream"
-ShadowClass::ShadowClass(IDirect3DDevice9 *Device)
-:_Device(Device), _isInit(false), _Mesh(nullptr){}
+ShadowClass::ShadowClass()
+:_Device(nullptr), _isInit(false), _Mesh(nullptr){
+	_Device = DeviceManager::getInstance()->getDevice();
+}
 
 ShadowClass::~ShadowClass()
 {

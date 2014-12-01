@@ -18,7 +18,7 @@ class ShadowClass
 {
 public:
 
-	ShadowClass(IDirect3DDevice9 *Device);
+	ShadowClass();
 	~ShadowClass();
 	bool initContext(ShadowInfo info);
 	bool drawShadowMesh();

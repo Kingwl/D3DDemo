@@ -3,6 +3,7 @@
 #define _LIGHT_MANAGER_
 #include "d3dx9.h"
 #include "Light.h"
+#include "DeviceManager.h"
 class LightManager
 {
 public:
@@ -22,7 +23,6 @@ public:
 	void setColor(D3DXCOLOR *color);
 	void setLightState(bool s);
 	bool getLightState();
-	void setDevice(IDirect3DDevice9 *Device);
 	bool setLight(LightType type, D3DXVECTOR3 *pos, D3DXVECTOR3 *dir, D3DXCOLOR *color, IDirect3DDevice9 *device = nullptr);
 	const D3DLIGHT9* getLight();
 private:

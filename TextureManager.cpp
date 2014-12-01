@@ -16,9 +16,9 @@ TextureManager* TextureManager::getInstance()
 	}
 	return _instance;
 }
-bool TextureManager::addTexture(IDirect3DDevice9 *Device, const char *fileName, UINT *identity)
+bool TextureManager::addTexture(const char *fileName, UINT *identity)
 {
-	TextureClass *texture = new TextureClass(Device);
+	TextureClass *texture = new TextureClass();
 	if (fileName != nullptr)
 	{
 		if (!texture->setTexture(fileName))

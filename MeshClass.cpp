@@ -1,12 +1,17 @@
 #include "MeshClass.h"
-
-MeshClass::MeshClass(IDirect3DDevice9 *Device)
-:_Device(Device), _mesh(nullptr), _isInit(false), _hasMtrl(false), _hasTex(false), _mtrls(nullptr)
+MeshClass::MeshClass()
+:_Device(nullptr), _mesh(nullptr), _isInit(false), _hasMtrl(false), _hasTex(false), _mtrls(nullptr), _pmesh(nullptr), _hasPMesh(false)
 {
 	D3DXMatrixIdentity(&_Pos);
+	_Device = DeviceManager::getInstance()->getDevice();
 }
 MeshClass::~MeshClass()
 {
+	if (_adjBuffer != nullptr)
+	{
+		_adjBuffer->Release();
+		_adjBuffer = nullptr;
+	}
 	if (_mesh != nullptr)
 	{
 		_mesh->Release();
@@ -34,14 +39,13 @@ bool MeshClass::initWithXFile(const char *filename)
 {
 	if (_isInit || filename == nullptr) return false;
 	_mtrls = new std::vector<D3DMATERIAL9>();
-	ID3DXBuffer *adjBuffer = nullptr;
 	ID3DXBuffer *MtrlBuffer = nullptr;
 	DWORD Number;
 	HRESULT hr = D3DXLoadMeshFromX(
 		filename,
 		D3DXMESH_MANAGED,
 		_Device,
-		&adjBuffer,
+		&_adjBuffer,
 		&MtrlBuffer,
 		nullptr,
 		&Number,
@@ -60,7 +64,7 @@ bool MeshClass::initWithXFile(const char *filename)
 		if (mtrls[i].pTextureFilename != nullptr)
 		{
 			UINT index;
-			TextureManager::getInstance()->addTexture(_Device, mtrls[i].pTextureFilename, &index);
+			TextureManager::getInstance()->addTexture(mtrls[i].pTextureFilename, &index);
 			_textures.push_back(index);
 		}
 		else{
@@ -99,4 +103,57 @@ ID3DXMesh* MeshClass::getMeshPointer()
 void MeshClass::setPos(D3DXMATRIX *pos)
 {
 	_Pos = *pos;
+}
+
+bool MeshClass::GetPMesh(void)
+{
+	if (_pmesh == nullptr && _mesh != nullptr)
+	{
+		HRESULT hr = D3DXGeneratePMesh(
+				_mesh,
+				(DWORD*)_adjBuffer->GetBufferPointer(),
+				0,
+				0,
+				1,
+				D3DXMESHSIMP_FACE,
+				&_pmesh);
+		if (FAILED(hr))
+		{
+			return false;
+		}
+		DWORD maxFace = _pmesh->GetMaxFaces();
+		_pmesh->SetNumFaces(maxFace);
+	}
+	_hasPMesh = true;
+	return true;
+
+}
+bool MeshClass::RenderPMesh()
+{
+	if (_isInit == false) return false;
+	if(_hasPMesh == false) 
+		if (this->GetPMesh() == false) 
+			return false;
+
+	_Device->SetTransform(D3DTS_WORLD, &_Pos);
+	for (int i = 0; i < _mtrls->size(); i++)
+	{
+		if (_hasMtrl)
+		{
+			auto p = *(_mtrls);
+			_Device->SetMaterial(&p[i]);
+		}
+		if (_hasTex)
+		{
+			_Device->SetTexture(0, TextureManager::getInstance()->getTexture(_textures[i])->getTexture());
+		}
+		_pmesh->DrawSubset(i);
+
+		_Device->SetMaterial(&d3d::YELLOW_MTRL);
+		_Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		_pmesh->DrawSubset(i);
+		_Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+	}
+	return true;
 }

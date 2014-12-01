@@ -4,6 +4,7 @@ LightManager* LightManager::_instance = nullptr;
 LightManager::LightManager()
 :_light(nullptr), _type(LightType::unknow), _lightEnable(true)
 {
+	_Device = DeviceManager::getInstance()->getDevice();
 }
 LightManager::~LightManager()
 {
@@ -113,12 +114,6 @@ void LightManager::setLightState(bool s)
 	_Device->LightEnable(0, s);
 	_lightEnable = s;
 }
-
-void LightManager::setDevice(IDirect3DDevice9 *Device)
-{
-	_Device = Device;
-}
-
 bool LightManager::getLightState()
 {
 	return _lightEnable;

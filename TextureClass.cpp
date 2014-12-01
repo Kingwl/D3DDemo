@@ -1,8 +1,9 @@
 #include "TextureClass.h"
 
-TextureClass::TextureClass(IDirect3DDevice9 *Device, const char *fileName)
-:_Texture(nullptr), _Device(Device)
+TextureClass::TextureClass(const char *fileName)
+:_Texture(nullptr), _Device(nullptr)
 {
+	_Device = DeviceManager::getInstance()->getDevice();
 	if (fileName != nullptr)
 	{
 		setTexture(fileName);

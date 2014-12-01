@@ -10,7 +10,7 @@
 #include "vector"
 #include "ShadowManager.h"
 #include "MeshManager.h"
-
+#include "DeviceManager.h"
 void fuck()
 {
 	::MessageBox(0, "fuck", 0, 0);
@@ -18,14 +18,15 @@ void fuck()
 const int Width = 800;
 const int Height = 600;
 
-IDirect3DDevice9 *Device = nullptr;
-D3DXVECTOR3 cubePos(0.0f, 3.0f, 5.0f);
-
+D3DXVECTOR3 cubePos(0.0f, 1.0f, 2.0f);
+ID3DXPMesh *pMesh;
 
 
 bool Display(float timeDelta)
 {
-	static float radius = 10.0f;
+	IDirect3DDevice9 *Device = DeviceManager::getInstance()->getDevice();
+
+	static float radius = 5.0f;
 
 
 	if (::GetAsyncKeyState(VK_UP) & 0x8000f)
@@ -43,7 +44,7 @@ bool Display(float timeDelta)
 	if (::GetAsyncKeyState('S') & 0x8000f)
 		angle += 0.5f * timeDelta;
 
-	D3DXVECTOR3 position(cosf(angle) * radius, 5.0f, sinf(angle) * radius);
+	D3DXVECTOR3 position(cosf(angle) * radius, 1.0f, sinf(angle) * radius);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMATRIX V;
@@ -53,7 +54,7 @@ bool Display(float timeDelta)
 	Device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xffffffff, 1.0f, 0);
 	Device->BeginScene();
 
-	MeshManager::getInstance()->Render();
+	MeshManager::getInstance()->RenderPMesh();
 	ShadowManager::getInstance()->Render();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
@@ -62,6 +63,7 @@ bool Display(float timeDelta)
 
 bool Setup()
 {
+	IDirect3DDevice9 *Device = DeviceManager::getInstance()->getDevice();
 	D3DXVECTOR3 dir(0.717f, -0.707f, 0.717f);
 	D3DXCOLOR color = d3d::WHITE;
 	LightManager::getInstance()->setLight(LightManager::LightType::Directional, nullptr, &dir, &color,Device);
@@ -77,8 +79,9 @@ bool Setup()
 	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
 	D3DXMATRIX cp;
 	D3DXMatrixTranslation(&cp, cubePos.x, cubePos.y, cubePos.z);
-	UINT P = MeshManager::getInstance()->addMesh(Device, "tiger.x",&cp);
-	ShadowManager::getInstance()->addShadow(Device, ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
+	UINT P = MeshManager::getInstance()->addMesh("tiger.x",&cp);
+	ShadowManager::getInstance()->addShadow(ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
+
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(
@@ -120,11 +123,14 @@ LRESULT CALLBACK d3d::windProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	IDirect3DDevice9 *Device = nullptr;
+
 	if (!d3d::initD3D(hInstance, Width, Height, true, D3DDEVTYPE_HAL, &Device))
 	{
 		::MessageBox(0, "initD3d failed", "error",0);
 		return 0;
 	}
+	DeviceManager::getInstance()->initDevice(Device);
 	if (!Setup())
 	{
 		::MessageBox(0, "Setup failed", "error", 0);

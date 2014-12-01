@@ -9,9 +9,9 @@ ShadowManager::~ShadowManager()
 {
 	clear();
 }
-void ShadowManager::addShadow(IDirect3DDevice9 *Device, ShadowInfo info)
+void ShadowManager::addShadow(ShadowInfo info)
 {
-	auto shadow = new ShadowClass(Device);
+	auto shadow = new ShadowClass();
 	shadow->initContext(info);
 	_elems.push_back(shadow);
 }

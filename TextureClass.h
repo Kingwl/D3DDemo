@@ -2,11 +2,11 @@
 #ifndef _TEXTURE_CLASS_
 #define _TEXTURE_CLASS_
 #include "d3dx9.h"
-#include "windows.h"
+#include "DeviceManager.h"
 class TextureClass
 {
 public:
-	TextureClass(IDirect3DDevice9 *Device, const char *fileName = nullptr);
+	TextureClass(const char *fileName = nullptr);
 	bool setTexture(const char *fileName);
 	~TextureClass();
 	void textureClear();
