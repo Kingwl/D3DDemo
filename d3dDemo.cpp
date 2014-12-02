@@ -1,54 +1,47 @@
 #include "windows.h"
 #include "d3dx9.h"
+#include "Cube.h"
+#include "Mtrl.h"
+#include "vector"
+#include "Camera.h"
 #include "initD3D.h"
 #include "Vertex.hpp"
-#include "Cube.h"
-#include "LightManager.h"
-#include "Mtrl.h"
-#include "ShadowClass.h"
-#include "TextureManager.h"
-#include "vector"
-#include "ShadowManager.h"
+
 #include "MeshManager.h"
+#include "LightManager.h"
+#include "ShadowManager.h"
 #include "DeviceManager.h"
+#include "TextureManager.h"
+
 void fuck()
 {
 	::MessageBox(0, "fuck", 0, 0);
 }
 const int Width = 800;
 const int Height = 600;
-
-D3DXVECTOR3 cubePos(0.0f, 1.0f, 2.0f);
-ID3DXPMesh *pMesh;
-
-
 bool Display(float timeDelta)
 {
 	IDirect3DDevice9 *Device = DeviceManager::getInstance()->getDevice();
 
-	static float radius = 5.0f;
-
-
 	if (::GetAsyncKeyState(VK_UP) & 0x8000f)
-		radius -= 2.0f * timeDelta;
-
+		Camera::getInstance()->pitch(-1.0 * timeDelta);
 	if (::GetAsyncKeyState(VK_DOWN) & 0x8000f)
-		radius += 2.0f * timeDelta;
-
-
-	static float angle = (3.0f * D3DX_PI) / 2.0f;
-
-	if (::GetAsyncKeyState('A') & 0x8000f)
-		angle -= 0.5f * timeDelta;
-
+		Camera::getInstance()->pitch(1.0 * timeDelta);
+	if (::GetAsyncKeyState(VK_LEFT) & 0x8000f)
+		Camera::getInstance()->yaw(-4.0 * timeDelta);
+	if (::GetAsyncKeyState(VK_RIGHT) & 0x8000f)
+		Camera::getInstance()->yaw(4.0 * timeDelta);
+	if (::GetAsyncKeyState('W') & 0x8000f)
+		Camera::getInstance()->walk(4.0 * timeDelta);
 	if (::GetAsyncKeyState('S') & 0x8000f)
-		angle += 0.5f * timeDelta;
-
-	D3DXVECTOR3 position(cosf(angle) * radius, 1.0f, sinf(angle) * radius);
-	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
+		Camera::getInstance()->walk(-4.0 * timeDelta);
+	if (::GetAsyncKeyState('A') & 0x8000f)
+		Camera::getInstance()->strafe(-4.0 * timeDelta);
+	if (::GetAsyncKeyState('D') & 0x8000f)
+		Camera::getInstance()->strafe(4.0 * timeDelta);
+	
 	D3DXMATRIX V;
-	D3DXMatrixLookAtLH(&V, &position, &target, &up);
+	Camera::getInstance()->getViewMatrix(&V);
 	Device->SetTransform(D3DTS_VIEW, &V);
 
 	Device->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, 0xffffffff, 1.0f, 0);
@@ -56,6 +49,7 @@ bool Display(float timeDelta)
 
 	MeshManager::getInstance()->RenderPMesh();
 	ShadowManager::getInstance()->Render();
+
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -74,14 +68,14 @@ bool Setup()
 	Device->SetRenderState(D3DRS_LIGHTING, true);
 	
 	D3DXVECTOR3 d;
+	D3DXMATRIX cp;
+	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
 	LightManager::getInstance()->getDir(&d);
 	D3DXVECTOR4 light(d.x, d.y, d.z, 0.0f);
-	D3DXPLANE p(0.0f, -1.0f, 0.0f, 0.0f);
-	D3DXMATRIX cp;
+	D3DXVECTOR3 cubePos(0.0f, 1.0f, 2.0f);
 	D3DXMatrixTranslation(&cp, cubePos.x, cubePos.y, cubePos.z);
 	UINT P = MeshManager::getInstance()->addMesh("tiger.x",&cp);
 	ShadowManager::getInstance()->addShadow(ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
-
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(

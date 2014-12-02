@@ -14,7 +14,6 @@ private:
 	IDirect3DDevice9 *_Device;
 	bool _isInit;
 	DeviceManager();
-
 	~DeviceManager();
 };
 #endif
