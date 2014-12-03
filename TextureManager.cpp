@@ -45,3 +45,14 @@ void TextureManager::clear()
 	}
 	_elemts.clear();
 }
+bool TextureManager::addTextureEmpty(int width, int height, UINT *identity)
+{
+	TextureClass *texture = new TextureClass();
+	if (!texture->setEmpty(width, height))
+	{
+		return false;
+	}
+	_elemts.push_back(texture);
+	*identity = _elemts.end() - _elemts.begin() - 1;
+	return true;
+}

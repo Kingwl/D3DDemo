@@ -33,7 +33,16 @@ void TextureClass::textureClear()
 		_Texture = nullptr;
 	}
 }
-IDirect3DTexture9* TextureClass::getTexture()
+IDirect3DTexture9* TextureClass::getTexturePointer()
 {
 	return _Texture;
+}
+bool TextureClass::setEmpty(int width, int height)
+{
+	if (_Texture != nullptr)
+		textureClear();
+	HRESULT hr = D3DXCreateTexture(_Device, width, height, 0, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &_Texture);
+	if (FAILED(hr))
+		return false;
+	return true;
 }

@@ -90,7 +90,7 @@ bool MeshClass::Render()
 		}
 		if (_hasTex)
 		{
-			_Device->SetTexture(0, TextureManager::getInstance()->getTexture(_textures[i])->getTexture());
+			_Device->SetTexture(0, TextureManager::getInstance()->getTexture(_textures[i])->getTexturePointer());
 		}
 		_mesh->DrawSubset(i);
 	}
@@ -145,7 +145,7 @@ bool MeshClass::RenderPMesh()
 		}
 		if (_hasTex)
 		{
-			_Device->SetTexture(0, TextureManager::getInstance()->getTexture(_textures[i])->getTexture());
+			_Device->SetTexture(0, TextureManager::getInstance()->getTexture(_textures[i])->getTexturePointer());
 		}
 		_pmesh->DrawSubset(i);
 

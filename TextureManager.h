@@ -9,6 +9,7 @@ class TextureManager
 public:
 	static TextureManager* getInstance();
 	bool addTexture(const char *fileName , UINT *identity);
+	bool addTextureEmpty(int width, int height, UINT *identity);
 	TextureClass* getTexture(std::size_t index);
 	void clear();
 private:

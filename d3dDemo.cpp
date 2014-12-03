@@ -12,33 +12,39 @@
 #include "ShadowManager.h"
 #include "DeviceManager.h"
 #include "TextureManager.h"
-
+#include "Terrain.h"
 void fuck()
 {
 	::MessageBox(0, "fuck", 0, 0);
 }
 const int Width = 800;
 const int Height = 600;
+Terrain *terrain = nullptr;
+D3DXMATRIX World;
 bool Display(float timeDelta)
 {
 	IDirect3DDevice9 *Device = DeviceManager::getInstance()->getDevice();
 
 	if (::GetAsyncKeyState(VK_UP) & 0x8000f)
-		Camera::getInstance()->pitch(-1.0 * timeDelta);
+		Camera::getInstance()->pitch(-1.0f * timeDelta);
 	if (::GetAsyncKeyState(VK_DOWN) & 0x8000f)
-		Camera::getInstance()->pitch(1.0 * timeDelta);
+		Camera::getInstance()->pitch(1.0f * timeDelta);
 	if (::GetAsyncKeyState(VK_LEFT) & 0x8000f)
-		Camera::getInstance()->yaw(-4.0 * timeDelta);
+		Camera::getInstance()->yaw(-4.0f * timeDelta);
+	if (::GetAsyncKeyState(VK_SHIFT) & 0x8000f)
+		Camera::getInstance()->fly(4.0f * timeDelta);
+	if (::GetAsyncKeyState(VK_CONTROL) & 0x8000f)
+		Camera::getInstance()->fly(-4.0f * timeDelta);
 	if (::GetAsyncKeyState(VK_RIGHT) & 0x8000f)
-		Camera::getInstance()->yaw(4.0 * timeDelta);
+		Camera::getInstance()->yaw(4.0f * timeDelta);
 	if (::GetAsyncKeyState('W') & 0x8000f)
-		Camera::getInstance()->walk(4.0 * timeDelta);
+		Camera::getInstance()->walk(4.0f * timeDelta);
 	if (::GetAsyncKeyState('S') & 0x8000f)
-		Camera::getInstance()->walk(-4.0 * timeDelta);
+		Camera::getInstance()->walk(-4.0f * timeDelta);
 	if (::GetAsyncKeyState('A') & 0x8000f)
-		Camera::getInstance()->strafe(-4.0 * timeDelta);
+		Camera::getInstance()->strafe(-4.0f * timeDelta);
 	if (::GetAsyncKeyState('D') & 0x8000f)
-		Camera::getInstance()->strafe(4.0 * timeDelta);
+		Camera::getInstance()->strafe(4.0f * timeDelta);
 	
 	D3DXMATRIX V;
 	Camera::getInstance()->getViewMatrix(&V);
@@ -50,6 +56,11 @@ bool Display(float timeDelta)
 	MeshManager::getInstance()->RenderPMesh();
 	ShadowManager::getInstance()->Render();
 
+	D3DXMatrixIdentity(&World);
+	D3DXMatrixTranslation(&World, 0.0f, -10.0f, 0.0f);
+	Device->SetTransform(D3DTS_WORLD, &World);
+	Device->SetMaterial(&d3d::RED_MTRL);
+	terrain->Render();
 	Device->EndScene();
 	Device->Present(0, 0, 0, 0);
 	return true;
@@ -76,6 +87,10 @@ bool Setup()
 	D3DXMatrixTranslation(&cp, cubePos.x, cubePos.y, cubePos.z);
 	UINT P = MeshManager::getInstance()->addMesh("tiger.x",&cp);
 	ShadowManager::getInstance()->addShadow(ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
+
+
+	terrain = new Terrain("height.raw", 128, 128, 1.0f, 1.0f);
+	terrain->genTexture();
 
 	D3DXMATRIX proj;
 	D3DXMatrixPerspectiveFovLH(

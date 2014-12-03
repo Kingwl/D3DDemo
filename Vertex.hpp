@@ -37,5 +37,16 @@ public :
 	D3DCOLOR _color;
 	static const DWORD FVF = D3DFVF_XYZ | D3DFVF_DIFFUSE;
 };
+class TerrainVertex
+{
+public:
+	TerrainVertex(){};
+	TerrainVertex(float x, float y, float z, float u, float v)
+	:_x(x),_y(y),_z(z),_u(u),_v(v){};
+	~TerrainVertex(){};
+	float _x, _y, _z;
+	float _u, _v;
+	static const DWORD FVF = D3DFVF_XYZ | D3DFVF_TEX1;
+};
 #endif
 
