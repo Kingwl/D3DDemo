@@ -1,6 +1,5 @@
 #include "Terrain.h"
 
-
 Terrain::Terrain(const char *fileName,int numVertesPerRow,int numVertesPerCol,int cellSpacing,float heightScaling)
 :_numVertesPerCol(numVertesPerCol), _numVertesPerRow(numVertesPerRow), _cellSpacing(cellSpacing), _heightScaling(heightScaling), _textureId(-1)
 
@@ -18,12 +17,10 @@ Terrain::Terrain(const char *fileName,int numVertesPerRow,int numVertesPerCol,in
 		::PostQuitMessage(0);
 	}
 
-
 	compuleVertices();
-	compuleVertices();
+	compuleIndies();
 
 }
-
 
 Terrain::~Terrain()
 {
@@ -52,7 +49,6 @@ bool Terrain::compuleVertices()
 		0);
 	if (FAILED(hr))
 	{
-		::MessageBox(0, "create terrain failed",0,0);
 		return false;
 	}
 	int startX = -_width / 2;
@@ -101,7 +97,6 @@ bool Terrain::compuleIndies()
 	{
 		for (int j = 0; j < _numCellPerRow; j++)
 		{
-
 			index[baseIndex + 0] = i * _numVertesPerRow + j;
 			index[baseIndex + 1] = i * _numVertesPerRow + j + 1;
 			index[baseIndex + 2] = (i + 1) * _numVertesPerRow + j;
@@ -111,7 +106,6 @@ bool Terrain::compuleIndies()
 			index[baseIndex + 5] = (i + 1) * _numVertesPerRow + j + 1;
 
 			baseIndex += 6;
-
 		}
 	}
 	_IndexBuffer->Unlock();
@@ -126,7 +120,6 @@ bool Terrain::loadTexture(const char *fileName)
 		::MessageBox(0, "load failed", 0, 0);
 		return false;
 	}
-		
 	return true;
 }
 bool Terrain::genTexture()
@@ -185,11 +178,8 @@ void Terrain::Render()
 	_Device->SetRenderState(D3DRS_LIGHTING, false);
 	_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, _numVertices, 0, _numTriangles);
 	_Device->SetRenderState(D3DRS_LIGHTING, true);
-
 	_Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, _numVertices, 0, _numTriangles);
 	_Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-
-
 
 }
