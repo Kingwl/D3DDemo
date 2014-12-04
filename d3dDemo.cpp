@@ -51,7 +51,6 @@ bool Display(float timeDelta)
 	pos.y = terrain->getHeight(pos.x, pos.z);
 	Camera::getInstance()->setPosition(&pos);
 
-
 	D3DXMATRIX V;
 	Camera::getInstance()->getViewMatrix(&V);
 	Device->SetTransform(D3DTS_VIEW, &V);

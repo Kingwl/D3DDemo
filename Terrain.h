@@ -10,6 +10,8 @@
 #include "fstream"
 #include "Color.h"
 #include "LightManager.h"
+float Lerp(float a, float b, float t);
+
 class Terrain
 {
 public:
@@ -28,8 +30,8 @@ public:
 	void Render();
 	float calcShadow(int x, int y);
 	bool lightTerrain();
-	int getHeightMapEntry(int x, int y);
-	float getHeight(int x, int y);
+	int getHeightMapEntry(int x, int z);
+	float getHeight(float x, float z);
 private:
 
 	std::vector<int> _heightMap;

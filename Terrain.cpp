@@ -173,9 +173,9 @@ bool Terrain::genTexture()
 
 	return true;
 }
-int Terrain::getHeightMapEntry(int x, int y)
+int Terrain::getHeightMapEntry(int x, int z)
 {
-	return _heightMap[x * _numVertesPerRow + y];
+	return _heightMap[x * _numVertesPerRow + z];
 }
 void Terrain::Render()
 {
@@ -238,15 +238,41 @@ bool Terrain::lightTerrain()
 	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->UnlockRect(0);
 	return true;
 }
-float Terrain::getHeight(int x, int y)
+float Terrain::getHeight(float x, float z)
 {
-	float tx = (float)_width / 2.0f + x;
-	float ty = (float)_depth / 2.0f - y;
-	tx /= (float)_cellSpacing;
-	ty /= (float)_cellSpacing;
-	float t = getHeightMapEntry(tx, ty);
-	char c[100];
-	sprintf_s(c, "%f %f %f",tx,ty, t);
-	::MessageBox(0, c, 0, 0);
-	return t + 1.0f;
+	x = ((float)_width / 2.0f) + x;
+	z = ((float)_depth / 2.0f) - z;
+
+	x /= (float)_cellSpacing;
+	z /= (float)_cellSpacing;
+	float col = ::floorf(x);
+	float row = ::floorf(z);
+
+	float A = getHeightMapEntry(row, col);
+	float B = getHeightMapEntry(row, col + 1);
+	float C = getHeightMapEntry(row + 1, col);
+	float D = getHeightMapEntry(row + 1, col + 1);
+
+	float dx = x - col;
+	float dz = z - row;
+	float height = 0.0f;
+	if (dz < 1.0f - dx)
+	{
+		float uy = B - A;
+		float vy = C - A;
+		height = A + Lerp(0.0f, uy, dx) + Lerp(0.0f, vy, dz);
+	}
+	else
+	{
+		float uy = C - D;
+		float vy = B - D;
+		height = D + Lerp(0.0f, uy, 1.0f - dx) + Lerp(0.0f, vy, 1.0f - dz);
+	}
+
+	return height;
+}
+
+float Lerp(float a, float b, float t)
+{
+	return a - (a*t) + (b*t);
 }

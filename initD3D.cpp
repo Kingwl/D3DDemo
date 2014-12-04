@@ -96,4 +96,3 @@ int d3d::EnterMsgLoop(bool(*ptr_display)(float timeDelta))
 	}
 	return msg.wParam;
 }
-
