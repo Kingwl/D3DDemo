@@ -26,7 +26,10 @@ public:
 	bool compuleVertices();
 	bool compuleIndies();
 	void Render();
+	float calcShadow(int x, int y);
+	bool lightTerrain();
 	int getHeightMapEntry(int x, int y);
+	float getHeight(int x, int y);
 private:
 
 	std::vector<int> _heightMap;
@@ -35,7 +38,6 @@ private:
 	int _numVertesPerCol;
 	int _cellSpacing;
 	float _heightScaling;
-
 	int _numCellPerRow;
 	int _numCellPerCol;
 	int _width;
@@ -45,8 +47,6 @@ private:
 	UINT _textureId;
 	IDirect3DVertexBuffer9 *_VertexBuffer;
 	IDirect3DIndexBuffer9 *_IndexBuffer;
-
-
 };
 
 #endif

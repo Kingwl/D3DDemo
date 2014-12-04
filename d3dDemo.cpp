@@ -31,14 +31,14 @@ bool Display(float timeDelta)
 		Camera::getInstance()->pitch(1.0f * timeDelta);
 	if (::GetAsyncKeyState(VK_LEFT) & 0x8000f)
 		Camera::getInstance()->yaw(-4.0f * timeDelta);
-	if (::GetAsyncKeyState(VK_SHIFT) & 0x8000f)
-		Camera::getInstance()->fly(4.0f * timeDelta);
-	if (::GetAsyncKeyState(VK_CONTROL) & 0x8000f)
-		Camera::getInstance()->fly(-4.0f * timeDelta);
+	//if (::GetAsyncKeyState(VK_SHIFT) & 0x8000f)
+	//	Camera::getInstance()->fly(4.0f * timeDelta);
+	//if (::GetAsyncKeyState(VK_CONTROL) & 0x8000f)
+	//	Camera::getInstance()->fly(-4.0f * timeDelta);
 	if (::GetAsyncKeyState(VK_RIGHT) & 0x8000f)
 		Camera::getInstance()->yaw(4.0f * timeDelta);
 	if (::GetAsyncKeyState('W') & 0x8000f)
-		Camera::getInstance()->walk(4.0f * timeDelta);
+		Camera::getInstance()->walk(8.0f * timeDelta);
 	if (::GetAsyncKeyState('S') & 0x8000f)
 		Camera::getInstance()->walk(-4.0f * timeDelta);
 	if (::GetAsyncKeyState('A') & 0x8000f)
@@ -46,6 +46,12 @@ bool Display(float timeDelta)
 	if (::GetAsyncKeyState('D') & 0x8000f)
 		Camera::getInstance()->strafe(4.0f * timeDelta);
 	
+	D3DXVECTOR3 pos;
+	Camera::getInstance()->getPosition(&pos);
+	pos.y = terrain->getHeight(pos.x, pos.z);
+	Camera::getInstance()->setPosition(&pos);
+
+
 	D3DXMATRIX V;
 	Camera::getInstance()->getViewMatrix(&V);
 	Device->SetTransform(D3DTS_VIEW, &V);
@@ -89,7 +95,7 @@ bool Setup()
 	ShadowManager::getInstance()->addShadow(ShadowInfo(&light, &p, &cubePos, MeshManager::getInstance()->getMesh(P)->getMeshPointer()));
 
 
-	terrain = new Terrain("height.raw", 128, 128, 1.0f, 1.0f);
+	terrain = new Terrain("height.raw", 128, 128, 3.0f, 1.0f);
 	terrain->genTexture();
 
 	D3DXMATRIX proj;

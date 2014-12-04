@@ -16,7 +16,10 @@ Terrain::Terrain(const char *fileName,int numVertesPerRow,int numVertesPerCol,in
 		::MessageBox(0, "readRawFile - FAILED", 0, 0);
 		::PostQuitMessage(0);
 	}
-
+	for (int i = 0; i < _heightMap.size(); i++)
+	{
+		_heightMap[i] *= _heightScaling;
+	}
 	compuleVertices();
 	compuleIndies();
 
@@ -28,7 +31,11 @@ Terrain::~Terrain()
 bool Terrain::readRawFile(const char *fileName)
 {
 	std::vector<BYTE> in(_numVertices);
-	std::fstream fin(fileName, std::ios::binary);
+	std::ifstream fin(fileName, std::ios::binary);
+	if (!fin.is_open())
+	{
+		return false;
+	}
 	fin.read((char*)&in[0], in.size());
 	fin.close();
 	_heightMap.resize(_numVertices);
@@ -137,9 +144,9 @@ bool Terrain::genTexture()
 	D3DLOCKED_RECT lockedRect;
 	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->LockRect(0, &lockedRect, 0, 0);
 	DWORD *imgData = (DWORD*)lockedRect.pBits;
-	for (int i = 0; i < texWidth; i++)
+	for (int i = 0; i < texHeight; i++)
 	{
-		for (int j = 0; j < texHeight; j++)
+		for (int j = 0; j < texWidth; j++)
 		{
 			D3DXCOLOR C;
 			float height = (float)getHeightMapEntry(i, j) / _heightScaling;
@@ -154,8 +161,9 @@ bool Terrain::genTexture()
 		}
 	}
 	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->UnlockRect(0);
-	D3DXVECTOR3 light;
-	LightManager::getInstance()->getDir(&light);
+	
+	lightTerrain();
+
 	HRESULT hr = D3DXFilterTexture(TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer(), 0, 0, D3DX_DEFAULT);
 	if (FAILED(hr))
 	{
@@ -182,4 +190,63 @@ void Terrain::Render()
 	_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, _numVertices, 0, _numTriangles);
 	_Device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
+}
+float Terrain::calcShadow(int x, int y)
+{
+	float heightA = getHeightMapEntry(x, y);
+	float heightB = getHeightMapEntry(x, y + 1);
+	float heightC = getHeightMapEntry(x + 1, y);
+
+	D3DXVECTOR3 u(_cellSpacing, heightB - heightA, 0.0f);
+	D3DXVECTOR3 v(0.0f, heightC - heightA, -_cellSpacing);
+
+	D3DXVECTOR3 n;
+	D3DXVec3Cross(&n, &u, &v);
+	D3DXVec3Normalize(&n, &n);
+	D3DXVECTOR3 l;
+	LightManager::getInstance()->getDir(&l);
+	l *= -1.0f;
+	float cosine = D3DXVec3Dot(&n, &l);
+	if (cosine < 0.0f)
+		cosine = 0.0f;
+	return cosine;
+}
+bool Terrain::lightTerrain()
+{
+	D3DSURFACE_DESC desc;
+	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->GetLevelDesc(0, &desc);
+
+	if (desc.Format != D3DFMT_X8R8G8B8)
+	{
+		return false;
+	}
+
+	D3DLOCKED_RECT rect;
+	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->LockRect(0, &rect, 0, 0);
+
+	DWORD *data = (DWORD*)rect.pBits;
+	for (int i = 0; i < desc.Height - 1 ; i++)
+	{
+		for (int j = 0; j < desc.Width - 1; j++)
+		{
+			int index = i * rect.Pitch / 4 + j;
+			D3DXCOLOR c(data[index]);
+			c *= calcShadow(i,j);
+			data[index] = (D3DCOLOR)c;
+		}
+	}
+	TextureManager::getInstance()->getTexture(_textureId)->getTexturePointer()->UnlockRect(0);
+	return true;
+}
+float Terrain::getHeight(int x, int y)
+{
+	float tx = (float)_width / 2.0f + x;
+	float ty = (float)_depth / 2.0f - y;
+	tx /= (float)_cellSpacing;
+	ty /= (float)_cellSpacing;
+	float t = getHeightMapEntry(tx, ty);
+	char c[100];
+	sprintf_s(c, "%f %f %f",tx,ty, t);
+	::MessageBox(0, c, 0, 0);
+	return t + 1.0f;
 }
